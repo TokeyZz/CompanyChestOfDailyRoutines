@@ -1,4 +1,5 @@
-﻿using DailyRoutines.Abstracts;
+﻿using System.Numerics;
+using DailyRoutines.Abstracts;
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
 using OmenTools;
@@ -40,27 +41,25 @@ public class AutoCountCompanyChestValue : DailyModuleBase
         fcChestPtr = nint.Zero;
     }
     //画UI
-    private void DrawUi()
-    {   unsafe
-        { 
+    private unsafe void DrawUi()
+    {   
+        
             // 查找部队箱界面
         var companyChestUi = DService.Gui.GetAddonByName("FreeCompanyChest");
+        var addon = (AtkUnitBase*)companyChestUi;
         showWindow = companyChestUi != nint.Zero;
         fcChestPtr = companyChestUi;
 
         if (!showWindow) return;
 
-        ImGui.SetNextWindowSize(new System.Numerics.Vector2(300, 100), ImGuiCond.Always);
-        ImGui.SetNextWindowPos(new System.Numerics.Vector2(200, 200), ImGuiCond.FirstUseEver);
-
+        ImGui.SetNextWindowSize(new Vector2(ImGui.GetWindowSize().Y/2f, ImGui.GetWindowSize().Y/6f), ImGuiCond.Always);
+        ImGui.SetNextWindowPos(new Vector2(addon->GetX() ,addon->GetY()- ImGui.GetWindowSize().Y/7f));
         //绘制界面并调用Check方法
-        if (ImGui.Begin("部队箱价值统计", ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoCollapse|ImGuiWindowFlags.NoTitleBar))
+        if (ImGui.Begin("部队箱价值统计", ImGuiWindowFlags.NoResize|ImGuiWindowFlags.NoCollapse|ImGuiWindowFlags.NoTitleBar))
         {
-            ImGui.Text("统计当前页面所有沉船首饰价值");
-            if (ImGui.Button("点我输出在聊天框"))
+            if (ImGui.Button("统计在聊天框",new (-0.1f, -0.1f)))
                 Check((AtkUnitBase*)fcChestPtr);
         } 
-        }
         ImGui.End();
     }
     //计算当前界面的首饰价值并输出
